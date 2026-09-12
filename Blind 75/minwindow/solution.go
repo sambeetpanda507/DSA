@@ -6,45 +6,53 @@ import (
 )
 
 func minWindow(s string, t string) string {
-	left := 0
-	right := 0
-	n := len(t)
-	tMap := make(map[rune]bool)
-	min := math.MaxInt
-	for _, r := range t {
-		tMap[r] = true
+	if len(t) == 0 {
+		return ""
 	}
 
-	sMap := make(map[rune]int)
-	m := 0
-	for right < len(s) {
-		var curr rune = rune(s[right])
-		isPresent := tMap[curr]
-		if isPresent {
-			m++
-		}
-
-		sMap[curr]++
-		for m == n {
-			windowSize := right - left + 1
-			if windowSize < min {
-				min = windowSize
-			}
-
-			lChar := rune(s[left])
-			isPresent = tMap[lChar]
-			if isPresent {
-				m--
-			}
-
-			sMap[lChar]--
-			left++
-		}
-
-		right++
+	S := make(map[byte]int)
+	T := make(map[byte]int)
+	count := 0
+	result := math.MaxInt
+	window := [2]int{0, 0}
+	for i := 0; i < len(t); i++ {
+		T[t[i]]++
 	}
 
-	return s[left : left+min]
+	L := 0
+	R := 0
+	for R < len(s) {
+		if _, ok := T[s[R]]; ok {
+			S[s[R]]++
+
+			if S[s[R]] == T[s[R]] {
+				count++
+			}
+		}
+
+		for count == len(T) {
+			if R-L+1 < result {
+				result = R - L + 1
+				window[0] = L
+				window[1] = L + result
+			}
+
+			if _, ok := T[s[L]]; ok {
+				S[s[L]]--
+			}
+
+			if S[s[L]] < T[s[L]] {
+				count--
+			}
+
+			L++
+		}
+
+		R++
+	}
+
+	// fmt.Printf("L = %d and R = %d and res = %d", L, R, result)
+	return s[window[0]:window[1]]
 }
 
 func main() {
